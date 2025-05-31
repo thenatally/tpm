@@ -1,0 +1,22 @@
+{
+  "name": "@thetally/tpm",
+  "version": "1.0.1",
+  "description": "npm wrapper with some neat things",
+  "license": "ISC",
+  "author": "Tally",
+  "type": "module",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "depcheck": "^1.4.7",
+    "prompt-sync": "^4.2.0"
+  },
+  "bin": {
+    "tpm": "bin/tpm.js"
+  },
+  "scripts": {
+    "start": "echo a"
+  },
+  "tpm": {
+    "aliases": {}
+  }
+}

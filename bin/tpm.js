@@ -56,22 +56,17 @@ program
   .action(removeAlias);
 
 program
-  .command("*")
-  .argument("<script>")
-  .argument("[args...]")
-  .description(
-    "Run a script from package.json (shortcut for 'tpm run <script>')"
-  )
-  .action((script, args) => {
-    if (
-      npmCommands.includes(script) ||
-      ["run", "add", "set", "checkdeps", "cd", "checkdependencies"].includes(
-        script
-      )
-    ) {
-      program.help();
-    } else {
-      runScript([script, ...args]);
+  .command("init")
+  .description("Bootstrap a new project")
+  .action(async () => {
+    const { initProject } = await import("../lib/commands/init.js");
+    try {
+      await initProject();
+    } catch (err) {
+      if (err && err.name !== 'ExitPromptError') {
+        console.error("Error during project initialization:", err);
+      }
+      process.exit(1);
     }
   });
 
@@ -83,7 +78,7 @@ const npmCommands = [
   "rm",
   "update",
   "run",
-  "init",
+  // "init",
   "publish",
   "unpublish",
   "link",
@@ -123,19 +118,45 @@ const npmCommands = [
 ];
 
 if (npmCommands.includes(process.argv[2])) {
-  if (process.argv[2] === "publish") {
-    if (!process.argv.some(arg => arg.startsWith("--access"))) {
-      const PromptSync = await import('prompt-sync');
-      const prompt = PromptSync.default({ sigint: true });
-      const answer = prompt("Add --access=public to publish? [Y/n] ");
-      if (!answer || answer.toLowerCase().startsWith("y")) {
-        process.argv.splice(3, 0, "--access=public");
+  (async () => {
+    if (process.argv[2] === "publish") {
+      if (!process.argv.some(arg => arg.startsWith("--access"))) {
+        const PromptSync = await import('prompt-sync');
+        const prompt = PromptSync.default({ sigint: true });
+        const answer = prompt("Add --access=public to publish? [Y/n] ");
+        if (!answer || answer.toLowerCase().startsWith("y")) {
+          process.argv.splice(3, 0, "--access=public");
+        }
       }
+      const npmArgs = process.argv.slice(2);
+      const child = spawn("npm", npmArgs, { stdio: "inherit" });
+      child.on("exit", process.exit);
+    } else {
+      const npmArgs = process.argv.slice(2);
+      const child = spawn("npm", npmArgs, { stdio: "inherit" });
+      child.on("exit", process.exit);
     }
-  }
-  const npmArgs = process.argv.slice(2);
-  const child = spawn("npm", npmArgs, { stdio: "inherit" });
-  child.on("exit", process.exit);
+  })();
 } else {
+  program
+    .command("*")
+    .argument("<script>")
+    .argument("[args...]")
+    .description(
+      "Run a script from package.json (shortcut for 'tpm run <script>')"
+    )
+    .action((script, args) => {
+      if (
+        npmCommands.includes(script) ||
+        ["run", "add", "set", "checkdeps", "cd", "checkdependencies"].includes(
+          script
+        )
+      ) {
+        program.help();
+      } else {
+        runScript([script, ...args]);
+      }
+    });
+
   program.parse(process.argv);
 }

@@ -1,6 +1,6 @@
 {
   "name": "@thetally/tpm",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "npm wrapper with some neat things",
   "license": "ISC",
   "author": "Tally",
@@ -8,6 +8,7 @@
   "dependencies": {
     "commander": "^14.0.0",
     "depcheck": "^1.4.7",
+    "inquirer": "^12.6.3",
     "prompt-sync": "^4.2.0"
   },
   "bin": {
